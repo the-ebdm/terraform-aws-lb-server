@@ -27,3 +27,7 @@ variable "cost_alarm_threshold" {
 variable "cost_alarm_emai" {
   default = ""
 }
+
+variable "cert_arn" {
+  default = ""
+}
