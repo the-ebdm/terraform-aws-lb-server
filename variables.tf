@@ -17,6 +17,13 @@ variable "subdomain" {
   default = ""
 }
 variable "ami_id" {
-  default = "ami-03397edfc64482efd"
+  default = "ami-0194c3e07668a7e36"
   type    = string
+}
+
+variable "cost_alarm_threshold" {
+  default = "10"
+}
+variable "cost_alarm_emai" {
+  default = ""
 }

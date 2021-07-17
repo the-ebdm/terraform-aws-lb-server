@@ -90,7 +90,7 @@ resource "aws_route53_record" "server" {
 }
 
 resource "aws_route53_record" "api" {
-  name            = "${var.subdomain != "" ? ".${var.subdomain}" : null}.${var.domain}"
+  name            = "${var.subdomain != "" ? "${var.subdomain}.${var.domain}" : var.domain} "
   type            = "CNAME"
   zone_id         = var.zone_id
   ttl             = 60
