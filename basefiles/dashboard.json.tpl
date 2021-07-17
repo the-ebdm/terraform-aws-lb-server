@@ -20,17 +20,27 @@ ${jsonencode({
       }
     },
     {
-      "metrics": [
-        [ "AWS/ApplicationELB", "NewConnectionCount", "LoadBalancer", "app/${lbname}/2b3d016e05e7bdaa" ],
-      ],
-      "view": "timeSeries",
-      "stacked": false,
-      "region": "eu-west-2",
-      "title": "New Api Connections",
-      "stat": "Average",
-      "period": 30,
-      "legend": {
-        "position": "hidden"
+      "type":"metric",
+      "x": 13,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [ "AWS/ApplicationELB", "NewConnectionCount", "LoadBalancer", "app/n8n-lb/2b3d016e05e7bdaa" ],
+          [ "...", "app/n8n-lb/fb69f82d26e222e4" ],
+          [ ".", "ActiveConnectionCount", ".", "." ],
+          [ ".", "RequestCount", ".", "." ],
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "eu-west-2",
+        "title": "New Api Connections",
+        "stat": "Average",
+        "period": 30,
+        "legend": {
+          "position": "hidden"
+        }
       }
     }
   ]
