@@ -28,18 +28,23 @@ echo ${var.ssh_pubkey} > /home/ubuntu/.ssh/authorized_keys
 sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
 
-curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.gpg | sudo apt-key add -
-curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-
 printf '${templatefile("${path.module}/basefiles/cloudwatch.json.tpl", {
   id  = var.id
 })}' > /etc/cloudwatch.json
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/etc/cloudwatch.json
-apt-get update -y && apt-get install -y tailscale collectd unzip
+apt-get update -y >/dev/null
+apt-get install -y tailscale collectd unzip apt-transport-https ca-certificates curl software-properties-common >/dev/null
+
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.gpg | sudo apt-key add -
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.list | sudo tee /etc/apt/sources.list.d/tailscale.list
+
+apt-get update -y >/dev/null
+apt-get install -y docker-ce >/dev/null
 
 ${var.tskey != "" ? local.tailscale_enable : ""}
 
-aws s3 cp s3://franscape-data-archive/source.zip /home/ubuntu
+aws s3 cp s3://franscape-data-archive/source.zip /home/ubuntu >/dev/null
 chown ubuntu:ubuntu /home/ubuntu/source.zip
 unzip /home/ubuntu/source.zip -d /home/ubuntu/server
 chown ubuntu:ubuntu -R /home/ubuntu/server
@@ -98,7 +103,7 @@ resource "aws_lb_listener" "api" {
 
 resource "aws_lb_target_group" "api" {
   name     = "${var.id}-api"
-  port     = 1337
+  port     = var.port
   protocol = "HTTP"
   vpc_id   = module.vpc.vpc_id
 
