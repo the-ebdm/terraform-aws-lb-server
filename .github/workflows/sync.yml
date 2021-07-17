@@ -15,6 +15,6 @@ jobs:
           fetch-depth: 0
       - name: Push
         uses: ./
-        username: "eric.muir"
         with:
+          username: "eric.muir"
           password: ${{ secrets.BITBUCKET_PASSWORD }}
