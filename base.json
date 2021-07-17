@@ -1,0 +1,51 @@
+{
+  "variables": {
+    "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_KEY`}}",
+		"public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDPspTmajJM27BckXYS/37sXNLiShsMoERkUbBjLt4uSgpdaxgVmxEWunMeQy53VsdBtyVpMIwnZzTeabiOY3bUGqAe/gGWDKS9mPKigPWNX5caVJficPWzmVeuDEfbm1AHkcDzzK4i9Qw98d2nvP+7EJulJ0Q6lhHxLz20zxKbYR1KbwuGDkPHK4Gh51NfohGG2+0m+mszEHnhlN6HURsU7C9xshCrPfNEie0+tlGHjq/2tiXrxZqlDJT8XZoINCon/CqdYLzkYBX/QiABrqi/qICBwSpRU6b0GVzIoe/0UfRSeK9VNqIsQDOGPhHGbSgsUrWoiCTKh7LKtaSk3I1LfLO6CUoeJ8PGgnh11caOUAIpfoaVuu4PuPBuvyCyQxt2O7b1W08q1DqOfDqM0uioPQ8u9gOB9zKgK5K+VBf9+R0LeGibN+sRS4BcKpKwAj2/FBulOendwTuF5FhGL1lyRWhdgTKxoqLOkSSTuGXB4suuwro5s9d8iqzhqiDkgU0= ericmuir@devmac.local",
+		"aws_region": "eu-west-2"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "{{user `aws_region`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["099720109477"],
+        "most_recent": true
+      },
+      "instance_type": "t2.medium",
+      "ssh_username": "ubuntu",
+      "ami_name": "strapi-base-{{timestamp}}",
+			"tags": {
+				"ami": "strapi-base"
+			},
+			"iam_instance_profile": "ec2-access-s3"
+    }
+  ],
+	"provisioners": [
+		{
+			"type": "shell",
+			"execute_command": "echo 'packer' | sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
+			"inline": [
+				"echo \"Installing Dependancies\"",
+				"sudo apt-get update -y && sudo apt-get install -y curl unzip >/dev/null",
+				"curl https://gist.githubusercontent.com/ebdmuir/785b924e4fd4da706bd5749db413eada/raw/3eac12f501926beb0abc8cd04548e7e241fd0391/aws-cli-ubuntu | sh",
+				"curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -",
+				"sudo apt-get install -y nodejs awscli >/dev/null",
+				"su ubuntu -c \"mkdir ~/.npm-global && npm config set prefix '~/.npm-global'\"",
+				"su ubuntu -c \"echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.profile\"",
+				"echo \"$SSHPUB\" > /home/ubuntu/.ssh/authorized_keys"
+			],
+			"environment_vars": [
+				"SSHPUB={{user `sshpub`}}"
+			]
+		}
+	]
+}
