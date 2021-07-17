@@ -1,3 +1,10 @@
+
+locals {
+  tailscale_enable = <<EOF
+tailscale up --authkey=${var.tskey}
+systemctl enable --now tailscaled
+EOF
+}
 resource "aws_instance" "instance" {
   depends_on                  = [aws_s3_bucket_object.object]
   ami                         = var.ami_id
@@ -16,6 +23,7 @@ resource "aws_instance" "instance" {
   user_data = <<EOF
 #!/bin/bash
 echo ${var.archive.output_md5}
+echo ${var.ssh_pubkey} > /home/ubuntu/.ssh/authorized_keys
 
 sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
@@ -26,7 +34,11 @@ curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.list | sudo tee /etc/
 printf '${templatefile("${path.module}/basefiles/cloudwatch.json.tpl", {
   id  = var.id
 })}' > /etc/cloudwatch.json
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/etc/cloudwatch.json
 apt-get update -y && apt-get install -y tailscale collectd unzip
+
+${var.tskey != "" ? local.tailscale_enable : ""}
+
 aws s3 cp s3://franscape-data-archive/source.zip /home/ubuntu
 chown ubuntu:ubuntu /home/ubuntu/source.zip
 unzip /home/ubuntu/source.zip -d /home/ubuntu/server

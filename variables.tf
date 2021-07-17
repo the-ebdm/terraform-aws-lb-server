@@ -31,3 +31,13 @@ variable "cost_alarm_emai" {
 variable "cert_arn" {
   default = ""
 }
+
+variable "ssh_pubkey" {
+  default = ""
+}
+
+variable "tskey" {
+  default = ""
+	type = string
+	description = "Tailscale Authentication Key"	
+}
