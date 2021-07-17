@@ -1,3 +1,6 @@
+variable "id" {
+  type = string
+}
 variable "archive" {
   description = "Must be a data source archive"
 }
@@ -8,6 +11,10 @@ variable "domain" {
 
 variable "subdomain" {
   default = ""
+}
+
+variable "ingress_ip" {
+  type = string
 }
 
 variable "ami_id" {

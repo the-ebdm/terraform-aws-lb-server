@@ -1,12 +1,9 @@
 resource "aws_s3_bucket" "main" {
-  bucket = "${var.name}-${replace(var.domain, ".", "")}"
-  tags {
-    Name = "n8n Automation Storage Bucket"
-  }
+  bucket = "${var.id}-${replace(var.domain, ".", "")}"
 }
 
 resource "aws_iam_role" "role" {
-  name = "${var.name}-${replace(var.domain, ".", "")}-role"
+  name = "${var.id}-${replace(var.domain, ".", "")}-role"
   assume_role_policy = jsonencode(
     { "Version" : "2012-10-17", "Statement" : [
       {
@@ -23,7 +20,7 @@ resource "aws_iam_role" "role" {
 }
 
 resource "aws_iam_role_policy" "policy" {
-  name = "${var.name}-${replace(var.domain, ".", "")}-policy"
+  name = "${var.id}-${replace(var.domain, ".", "")}-policy"
   role = aws_iam_role.role.id
 
   policy = jsonencode(

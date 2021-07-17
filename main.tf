@@ -7,7 +7,7 @@ resource "aws_instance" "instance" {
   subnet_id                   = module.vpc.public_subnets[0]
   vpc_security_group_ids      = [aws_security_group.allow_ssh.id]
   tags = {
-    Name   = "${var.name} server"
+    Name   = "${var.id} server"
     Source = data.archive_file.archive.output_md5
   }
 
