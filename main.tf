@@ -42,6 +42,14 @@ resource "aws_lb" "api" {
   }
 }
 
+module "cert" {
+  source  = "terraform-aws-modules/acm/aws"
+  version = "~> v2.0"
+
+  domain_name = "${var.subdomain != "" ? ".${var.subdomain}" : null}.${var.domain}"
+  zone_id     = data.aws_route53_zone.franscape.zone_id
+}
+
 resource "aws_lb_listener" "api" {
   load_balancer_arn = aws_lb.api.arn
   port              = "443"
@@ -82,7 +90,7 @@ resource "aws_route53_record" "server" {
 }
 
 resource "aws_route53_record" "api" {
-  name            = "${var.id}.${var.domain}"
+  name            = "${var.subdomain != "" ? ".${var.subdomain}" : null}.${var.domain}"
   type            = "CNAME"
   zone_id         = var.zone_id
   ttl             = 60
