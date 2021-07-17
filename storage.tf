@@ -2,6 +2,14 @@ resource "aws_s3_bucket" "main" {
   bucket = "${var.id}-${replace(var.domain, ".", "")}"
 }
 
+resource "aws_s3_bucket_object" "object" {
+  bucket = aws_s3_bucket.main.bucket
+  key    = "source.zip"
+  source = "source.zip"
+
+  etag = var.archive.output_md5
+}
+
 resource "aws_iam_role" "role" {
   name = "${var.id}-${replace(var.domain, ".", "")}-role"
   assume_role_policy = jsonencode(

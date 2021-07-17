@@ -8,14 +8,14 @@ resource "aws_instance" "instance" {
   vpc_security_group_ids      = [aws_security_group.allow_ssh.id]
   tags = {
     Name   = "${var.id} server"
-    Source = data.archive_file.archive.output_md5
+    Source = var.archive.output_md5
   }
 
-  iam_instance_profile = aws_iam_role_policy.role.name
+  iam_instance_profile = aws_iam_role_policy.policy.name
 
   user_data = <<EOF
 #!/bin/bash
-echo ${data.archive_file.archive.output_md5}
+echo ${var.archive.output_md5}
 apt update -y && apt install -y unzip 
 aws s3 cp s3://franscape-data-archive/source.zip /home/ubuntu
 chown ubuntu:ubuntu /home/ubuntu/source.zip
@@ -47,7 +47,7 @@ module "cert" {
   version = "~> v2.0"
 
   domain_name = "${var.subdomain != "" ? ".${var.subdomain}" : null}.${var.domain}"
-  zone_id     = data.aws_route53_zone.franscape.zone_id
+  zone_id     = var.zone_id
 }
 
 resource "aws_lb_listener" "api" {
