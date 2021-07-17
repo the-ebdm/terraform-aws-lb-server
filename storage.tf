@@ -27,6 +27,11 @@ resource "aws_iam_role" "role" {
   tags = { tag-key = "tag-value" }
 }
 
+resource "aws_iam_instance_profile" "profile" {
+  name = "${var.id}_profile"
+  role = "${aws_iam_role.role.name}"
+}
+
 resource "aws_iam_role_policy" "policy" {
   name = "${var.id}-${replace(var.domain, ".", "")}-policy"
   role = aws_iam_role.role.id
