@@ -33,14 +33,14 @@ printf '${templatefile("${path.module}/basefiles/cloudwatch.json.tpl", {
 })}' > /etc/cloudwatch.json
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/etc/cloudwatch.json
 apt-get update -y >/dev/null
-apt-get install -y tailscale collectd unzip apt-transport-https ca-certificates curl software-properties-common >/dev/null
+apt-get install -y collectd unzip apt-transport-https ca-certificates curl software-properties-common >/dev/null
 
-curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.gpg | sudo apt-key add -
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.gpg | sudo apt-key add -
 curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.list | sudo tee /etc/apt/sources.list.d/tailscale.list
 
 apt-get update -y >/dev/null
-apt-get install -y docker-ce >/dev/null
+apt-get install -y docker-ce tailscale >/dev/null
 
 ${var.tskey != "" ? local.tailscale_enable : ""}
 
@@ -102,7 +102,7 @@ resource "aws_lb_listener" "api" {
 }
 
 resource "aws_lb_target_group" "api" {
-  name     = "${var.id}-api"
+  name     = "${var.id}-api-${aws_instance.instance.id}"
   port     = var.port
   protocol = "HTTP"
   vpc_id   = module.vpc.vpc_id

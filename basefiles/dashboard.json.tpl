@@ -27,8 +27,7 @@ ${jsonencode({
       "height": 6,
       "properties": {
         "metrics": [
-          [ "AWS/ApplicationELB", "NewConnectionCount", "LoadBalancer", "app/n8n-lb/2b3d016e05e7bdaa" ],
-          [ "...", "app/n8n-lb/fb69f82d26e222e4" ],
+          [ "AWS/ApplicationELB", "NewConnectionCount", "LoadBalancer", "${lb}" ],
           [ ".", "ActiveConnectionCount", ".", "." ],
           [ ".", "RequestCount", ".", "." ],
         ],

@@ -36,8 +36,16 @@ variable "ssh_pubkey" {
   default = ""
 }
 
+variable "port" {
+  default = 80 
+}
+
 variable "tskey" {
   default = ""
 	type = string
 	description = "Tailscale Authentication Key"	
+}
+
+variable "sns_arn" {
+  default = "arn:aws:sns:eu-west-2:736462105110:discord-notifications"
 }
