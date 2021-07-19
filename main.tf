@@ -1,9 +1,16 @@
+data "aws_ami" "base_ami" {
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
 
-locals {
-  tailscale_enable = <<EOF
-tailscale up --authkey=${var.tskey}
-systemctl enable --now tailscaled
-EOF
+  filter {
+    name   = "tag:ami"
+    values = []
+  }
+
+  most_recent = true
+  owners      = [var.aws_account]
 }
 resource "aws_instance" "instance" {
   depends_on                  = [aws_s3_bucket_object.object]
@@ -19,39 +26,7 @@ resource "aws_instance" "instance" {
   }
 
   iam_instance_profile = aws_iam_instance_profile.profile.name
-
-  user_data = <<EOF
-#!/bin/bash
-echo ${var.archive.output_md5}
-echo ${var.ssh_pubkey} > /home/ubuntu/.ssh/authorized_keys
-
-sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
-sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
-
-printf '${templatefile("${path.module}/basefiles/cloudwatch.json.tpl", {
-  id  = var.id
-})}' > /etc/cloudwatch.json
-/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/etc/cloudwatch.json
-apt-get update -y >/dev/null
-apt-get install -y collectd unzip apt-transport-https ca-certificates curl software-properties-common >/dev/null
-
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.gpg | sudo apt-key add -
-curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/bionic.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-
-apt-get update -y >/dev/null
-apt-get install -y docker-ce tailscale >/dev/null
-
-${var.tskey != "" ? local.tailscale_enable : ""}
-
-aws s3 cp s3://franscape-data-archive/source.zip /home/ubuntu >/dev/null
-chown ubuntu:ubuntu /home/ubuntu/source.zip
-unzip /home/ubuntu/source.zip -d /home/ubuntu/server
-chown ubuntu:ubuntu -R /home/ubuntu/server
-chmos +x /home/ubuntu/server/install.sh
-
-su ubuntu -c "~/server/install.sh"
-EOF
+  user_data = var.user_data
 
   lifecycle {
     create_before_destroy = true

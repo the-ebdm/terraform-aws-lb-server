@@ -1,8 +1,8 @@
 variable "id" {
   type = string
 }
-variable "archive" {
-  description = "Must be a data source archive"
+variable "user_data" {
+  type = string
 }
 variable "domain" {
   type = string
